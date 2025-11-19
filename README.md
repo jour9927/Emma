@@ -7,7 +7,7 @@
 - **帳號系統**：Supabase Auth 處理註冊 / 登入 / 登出，員工資料會跟著會話 Cookie 一起同步。
 - **分店 Dashboard**：即時顯示各分店需求與現場人數，依照人力密度排序並提供聯絡人資訊與備註。
 - **支援需求中心**：員工或店長可以送出支援申請，所有人立即看到排程狀態。
-- **管理員頁面**：新增/更新分店、人力配置與需求結案都在 `/admin` 頁面完成。
+- **管理員頁面**：新增/更新分店、人力配置與需求結案都在 `/management` 頁面完成。
 - **Vercel 友善**：預設配置適合一鍵部署到 Vercel，支援環境變數與自動化資料回補（未設定 Supabase 時會使用 demo data）。
 
 ---
@@ -81,7 +81,8 @@ NEXT_PUBLIC_SITE_URL=https://your-vercel-domain.vercel.app
 ## 目錄重點
 
 - `src/app/page.tsx`：首頁，包含註冊登入、分店 Dashboard 與支援需求。
-- `src/app/admin/page.tsx`：管理員專屬頁面，集中維運相關操作。
+- `src/app/management/page.tsx`：管理員專屬頁面，集中維運相關操作。
+- `src/app/admin/page.tsx`：保留相容性的重新導向，導至 `/management`。
 - `src/lib/data.ts`：處理 Supabase 資料擷取與 demo fallback。
 - `src/lib/supabase`：Server Actions、Supabase client 建立方式。
 - `src/components`：UI 與互動元件，例如 `AuthCard`、`SupportRequestBoard`。

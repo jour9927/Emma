@@ -109,7 +109,7 @@ export async function createBranchAction(
   }
 
   revalidatePath("/");
-  revalidatePath("/admin");
+  revalidatePath("/management");
   return { status: "success", message: "成功新增分店" };
 }
 
@@ -145,7 +145,7 @@ export async function updateBranchStaffingAction(
   }
 
   revalidatePath("/");
-  revalidatePath("/admin");
+  revalidatePath("/management");
   return { status: "success", message: "分店資訊已更新" };
 }
 
@@ -180,7 +180,7 @@ export async function createSupportRequestAction(
   }
 
   revalidatePath("/");
-  revalidatePath("/admin");
+  revalidatePath("/management");
   return { status: "success", message: "已送出支援需求" };
 }
 
@@ -210,6 +210,6 @@ export async function resolveRequestAction(
   }
 
   revalidatePath("/");
-  revalidatePath("/admin");
+  revalidatePath("/management");
   return { status: "success", message: "需求狀態已更新" };
 }
