@@ -3,6 +3,7 @@
 import { type CookieOptions, createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 function getEnv() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -19,16 +20,18 @@ export async function createSupabaseServerClient(): Promise<
   const env = getEnv();
   if (!env) return null;
 
+  const nextCookies: ReadonlyRequestCookies = cookies();
+
   return createServerClient(env.url, env.anonKey, {
     cookies: {
       get(name: string) {
-        return cookies().get(name)?.value;
+        return nextCookies.get(name)?.value;
       },
       set(name: string, value: string, options: CookieOptions) {
-        cookies().set({ name, value, ...options });
+        nextCookies.set({ name, value, ...options });
       },
       remove(name: string, options: CookieOptions) {
-        cookies().set({ name, value: "", ...options });
+        nextCookies.set({ name, value: "", ...options });
       },
     },
   });
