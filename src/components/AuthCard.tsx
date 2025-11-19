@@ -5,9 +5,10 @@ import {
   signInAction,
   signOutAction,
   signUpAction,
+  type FormState,
 } from "@/lib/supabase/actions";
 
-const initialState = { status: "idle", message: "" };
+const initialState: FormState = { status: "idle", message: "" };
 
 interface AuthCardProps {
   userEmail?: string | null;

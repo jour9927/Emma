@@ -1,10 +1,10 @@
 "use client";
 
 import { useActionState } from "react";
-import { resolveRequestAction } from "@/lib/supabase/actions";
+import { resolveRequestAction, type FormState } from "@/lib/supabase/actions";
 import type { CoverageRequest } from "@/lib/types";
 
-const initialState = { status: "idle", message: "" };
+const initialState: FormState = { status: "idle", message: "" };
 
 interface RequestStatusFormProps {
   request: CoverageRequest;

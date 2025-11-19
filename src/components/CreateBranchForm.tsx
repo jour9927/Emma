@@ -1,9 +1,9 @@
 "use client";
 
 import { useActionState } from "react";
-import { createBranchAction } from "@/lib/supabase/actions";
+import { createBranchAction, type FormState } from "@/lib/supabase/actions";
 
-const initialState = { status: "idle", message: "" };
+const initialState: FormState = { status: "idle", message: "" };
 
 export function CreateBranchForm() {
   const [state, action, pending] = useActionState(

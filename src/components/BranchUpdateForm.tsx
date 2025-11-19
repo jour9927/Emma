@@ -2,9 +2,12 @@
 
 import { useActionState } from "react";
 import type { Branch } from "@/lib/types";
-import { updateBranchStaffingAction } from "@/lib/supabase/actions";
+import {
+  updateBranchStaffingAction,
+  type FormState,
+} from "@/lib/supabase/actions";
 
-const initialState = { status: "idle", message: "" };
+const initialState: FormState = { status: "idle", message: "" };
 
 interface BranchUpdateFormProps {
   branch: Branch;

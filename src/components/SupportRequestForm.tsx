@@ -1,10 +1,13 @@
 "use client";
 
 import { useActionState } from "react";
-import { createSupportRequestAction } from "@/lib/supabase/actions";
+import {
+  createSupportRequestAction,
+  type FormState,
+} from "@/lib/supabase/actions";
 import type { Branch } from "@/lib/types";
 
-const initialState = { status: "idle", message: "" };
+const initialState: FormState = { status: "idle", message: "" };
 
 interface SupportRequestFormProps {
   branches: Branch[];
