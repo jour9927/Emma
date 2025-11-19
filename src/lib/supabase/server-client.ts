@@ -20,7 +20,7 @@ export async function createSupabaseServerClient(): Promise<
   const env = getEnv();
   if (!env) return null;
 
-  const nextCookies: ReadonlyRequestCookies = cookies();
+  const nextCookies: ReadonlyRequestCookies = await cookies();
 
   return createServerClient(env.url, env.anonKey, {
     cookies: {
