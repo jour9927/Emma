@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { loadCurrentUser } from "@/lib/auth";
+import { loadCurrentUser, isAdmin } from "@/lib/auth";
 import { SiteNav } from "@/components/SiteNav";
 
 const geistSans = Geist({
@@ -31,13 +31,18 @@ export default async function RootLayout({
     user?.user_metadata?.full_name ??
     user?.email ??
     null;
+  const admin = isAdmin(user);
 
   return (
     <html lang="zh-Hant">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SiteNav isAuthenticated={!!user} userName={userName} />
+        <SiteNav
+          isAuthenticated={!!user}
+          userName={userName}
+          isAdmin={admin}
+        />
         <main>{children}</main>
       </body>
     </html>

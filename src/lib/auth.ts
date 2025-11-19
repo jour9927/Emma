@@ -11,3 +11,7 @@ export async function loadCurrentUser(): Promise<User | null> {
 
   return user ?? null;
 }
+
+export function isAdmin(user: User | null | undefined): boolean {
+  return (user?.user_metadata?.role as string | undefined) === "admin";
+}

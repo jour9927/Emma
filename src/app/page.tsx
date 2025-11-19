@@ -2,7 +2,7 @@ import Link from "next/link";
 import { BranchGrid } from "@/components/BranchGrid";
 import { SupportRequestBoard } from "@/components/SupportRequestBoard";
 import { loadBranches, loadRequests, buildSnapshot } from "@/lib/data";
-import { loadCurrentUser } from "@/lib/auth";
+import { loadCurrentUser, isAdmin } from "@/lib/auth";
 import { signOutAction } from "@/lib/supabase/actions";
 
 export const dynamic = "force-dynamic";
@@ -15,6 +15,7 @@ export default async function Home() {
   ]);
 
   const snapshot = buildSnapshot(branches, requests);
+  const admin = isAdmin(user);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-50 via-slate-50 to-white">
@@ -33,12 +34,14 @@ export default async function Home() {
                 與管理員派遣。任何裝置都能即時更新，老闆不用再逐一打電話確認。
               </p>
               <div className="mt-6 flex flex-wrap gap-3 text-sm">
-                <Link
-                  href="/management"
-                  className="rounded-full bg-slate-900 px-6 py-3 font-semibold text-white hover:bg-slate-800"
-                >
-                  前往管理專區
-                </Link>
+                {admin && (
+                  <Link
+                    href="/management"
+                    className="rounded-full bg-slate-900 px-6 py-3 font-semibold text-white hover:bg-slate-800"
+                  >
+                    前往管理專區
+                  </Link>
+                )}
                 {user ? (
                   <>
                     <Link

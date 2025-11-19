@@ -3,10 +3,11 @@ import { signOutAction } from "@/lib/supabase/actions";
 
 interface SiteNavProps {
   isAuthenticated: boolean;
+  isAdmin: boolean;
   userName?: string | null;
 }
 
-export function SiteNav({ isAuthenticated, userName }: SiteNavProps) {
+export function SiteNav({ isAuthenticated, isAdmin, userName }: SiteNavProps) {
   return (
     <div className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-4 text-sm sm:px-6">
@@ -14,24 +15,19 @@ export function SiteNav({ isAuthenticated, userName }: SiteNavProps) {
           員工分流系統
         </Link>
         <nav className="flex flex-wrap gap-4 text-slate-600">
-          <Link
-            href="/"
-            className="hover:text-slate-900"
-          >
+          <Link href="/" className="hover:text-slate-900">
             Dashboard
           </Link>
-          <Link
-            href="/management"
-            className="hover:text-slate-900"
-          >
-            管理員
-          </Link>
-          <Link
-            href="/profile"
-            className="hover:text-slate-900"
-          >
-            個人檔案
-          </Link>
+          {isAdmin && (
+            <Link href="/management" className="hover:text-slate-900">
+              管理員
+            </Link>
+          )}
+          {isAuthenticated && (
+            <Link href="/profile" className="hover:text-slate-900">
+              個人檔案
+            </Link>
+          )}
           <a href="#support-request" className="hover:text-slate-900">
             支援需求
           </a>

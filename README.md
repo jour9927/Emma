@@ -8,6 +8,7 @@
 - **分店 Dashboard**：即時顯示各分店需求與現場人數，依照人力密度排序並提供聯絡人資訊與備註。
 - **支援需求中心**：員工或店長可以送出支援申請，所有人立即看到排程狀態。
 - **管理員頁面**：新增/更新分店、人力配置與需求結案都在 `/management` 頁面完成，`/admin` 只作重新導向。
+- **權限控管**：只有 Supabase Auth `user_metadata.role = "admin"` 的帳號可以看到或操作管理頁與相關 Server Actions，其餘使用者不會看到對應按鈕。
 - **行動版體驗**：頁面採用彈性網格與觸控友善按鈕，在手機、平板上也能操作登入與管理。
 - **Vercel 友善**：預設配置適合一鍵部署到 Vercel，支援環境變數與自動化資料回補（未設定 Supabase 時會使用 demo data）。
 
@@ -53,6 +54,18 @@ create table public.coverage_requests (
 ```
 
 2. 到「Project Settings → API」複製 `Project URL` 與 `anon public` key，並設定在環境變數中。
+
+### 管理員權限
+
+在 Supabase Dashboard → Authentication → Users，選擇要成為管理員的帳號，於 Metadata 加入：
+
+```json
+{
+  "role": "admin"
+}
+```
+
+系統會根據此屬性隱藏或開啟 `/management`、管理 Server Actions 與導覽列連結。
 
 ---
 

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { createSupabaseServerClient } from "./server-client";
 
 export interface FormState {
@@ -13,6 +14,29 @@ const missingEnvState: FormState = {
   message:
     "請先在 Vercel/Supabase 設定 NEXT_PUBLIC_SUPABASE_URL 與 NEXT_PUBLIC_SUPABASE_ANON_KEY。",
 };
+
+async function requireAdmin(
+  supabase: SupabaseClient | null,
+): Promise<FormState | { user: User }> {
+  if (!supabase) {
+    return missingEnvState;
+  }
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    return { status: "error", message: "請先登入" };
+  }
+
+  if ((user.user_metadata?.role as string | undefined) !== "admin") {
+    return { status: "error", message: "僅限管理員操作" };
+  }
+
+  return { user };
+}
 
 export async function signUpAction(
   _prev: FormState,
@@ -87,8 +111,9 @@ export async function createBranchAction(
   formData: FormData,
 ): Promise<FormState> {
   const supabase = await createSupabaseServerClient();
-  if (!supabase) {
-    return missingEnvState;
+  const adminCheck = await requireAdmin(supabase);
+  if ("status" in adminCheck) {
+    return adminCheck;
   }
 
   const name = formData.get("name")?.toString();
@@ -118,8 +143,9 @@ export async function updateBranchStaffingAction(
   formData: FormData,
 ): Promise<FormState> {
   const supabase = await createSupabaseServerClient();
-  if (!supabase) {
-    return missingEnvState;
+  const adminCheck = await requireAdmin(supabase);
+  if ("status" in adminCheck) {
+    return adminCheck;
   }
 
   const branchId = formData.get("branchId")?.toString();
@@ -189,8 +215,9 @@ export async function resolveRequestAction(
   formData: FormData,
 ): Promise<FormState> {
   const supabase = await createSupabaseServerClient();
-  if (!supabase) {
-    return missingEnvState;
+  const adminCheck = await requireAdmin(supabase);
+  if ("status" in adminCheck) {
+    return adminCheck;
   }
 
   const requestId = formData.get("requestId")?.toString();
