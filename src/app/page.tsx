@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { AuthCard } from "@/components/AuthCard";
 import { BranchGrid } from "@/components/BranchGrid";
 import { SupportRequestBoard } from "@/components/SupportRequestBoard";
 import { loadBranches, loadRequests, buildSnapshot } from "@/lib/data";
 import { loadCurrentUser } from "@/lib/auth";
+import { signOutAction } from "@/lib/supabase/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +18,7 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-50 via-slate-50 to-white">
-      <div className="mx-auto max-w-6xl space-y-10 px-4 py-10 sm:px-6">
+      <div className="mx-auto max-w-6xl space-y-10 px-4 py-8 sm:px-6 lg:py-12">
         <header className="rounded-3xl border border-slate-200 bg-white/80 p-8 shadow-sm backdrop-blur">
           <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
             <div>
@@ -32,13 +32,43 @@ export default async function Home() {
                 透過 Supabase + Vercel 雲端架構，集中處理註冊登入、分店 Dashboard
                 與管理員派遣。任何裝置都能即時更新，老闆不用再逐一打電話確認。
               </p>
-              <div className="mt-6 flex flex-wrap gap-4 text-sm">
+              <div className="mt-6 flex flex-wrap gap-3 text-sm">
                 <Link
                   href="/management"
                   className="rounded-full bg-slate-900 px-6 py-3 font-semibold text-white hover:bg-slate-800"
                 >
                   前往管理專區
                 </Link>
+                {user ? (
+                  <>
+                    <Link
+                      href="/profile"
+                      className="rounded-full border border-slate-200 px-6 py-3 font-semibold text-slate-900 hover:border-slate-300"
+                    >
+                      個人檔案
+                    </Link>
+                    <form action={signOutAction}>
+                      <button className="rounded-full border border-slate-200 px-6 py-3 font-semibold text-slate-900 hover:border-slate-300">
+                        登出
+                      </button>
+                    </form>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/login"
+                      className="rounded-full border border-slate-200 px-6 py-3 font-semibold text-slate-900 hover:border-slate-300"
+                    >
+                      登入
+                    </Link>
+                    <Link
+                      href="/register"
+                      className="rounded-full border border-slate-200 px-6 py-3 font-semibold text-slate-900 hover:border-slate-300"
+                    >
+                      註冊
+                    </Link>
+                  </>
+                )}
                 <a
                   href="https://supabase.com/docs"
                   target="_blank"
@@ -80,11 +110,105 @@ export default async function Home() {
             </div>
           </div>
         </header>
+        <section className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm">
+          <p className="text-xs uppercase tracking-[0.4em] text-slate-500">
+            系統頁面分類
+          </p>
+          <h2 className="mt-2 text-2xl font-semibold text-slate-900">
+            依照角色與需求快速找到入口
+          </h2>
+          <div className="mt-4 grid gap-4 md:grid-cols-4">
+            {[
+              {
+                title: "主頁 Dashboard",
+                description: "整合分店指標與當前支援狀況。",
+                href: "/",
+              },
+              {
+                title: "管理員頁",
+                description: "新增分店、指派支援與追蹤需求。",
+                href: "/management",
+              },
+              {
+                title: "登入 / 註冊",
+                description: "分別在 /login 與 /register 完成身份驗證。",
+                href: user ? "/profile" : "/login",
+              },
+              {
+                title: "個人檔案",
+                description: "自訂顯示名稱，維護個人資料。",
+                href: "/profile",
+              },
+            ].map((card) => (
+              <Link
+                key={card.title}
+                href={card.href}
+                className="flex flex-col justify-between rounded-2xl border border-slate-100 bg-slate-50 p-4 transition hover:border-slate-300"
+              >
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">
+                    {card.title}
+                  </p>
+                  <p className="mt-1 text-sm text-slate-600">
+                    {card.description}
+                  </p>
+                </div>
+                <span className="mt-4 text-xs font-semibold text-indigo-600">
+                  查看頁面 →
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
 
         <div className="grid gap-8 lg:grid-cols-[3fr,2fr]">
           <BranchGrid branches={branches} />
           <div className="space-y-6">
-            <AuthCard userEmail={user?.email} />
+            <section className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
+              <p className="text-xs uppercase tracking-[0.4em] text-slate-500">
+                帳號狀態
+              </p>
+              {user ? (
+                <>
+                  <h3 className="mt-2 text-xl font-semibold text-slate-900">
+                    歡迎回來，{user.user_metadata?.username ?? user.email}
+                  </h3>
+                  <p className="mt-2 text-sm text-slate-500">
+                    你可以前往{" "}
+                    <Link
+                      href="/profile"
+                      className="font-semibold text-slate-900 underline-offset-2 hover:underline"
+                    >
+                      個人檔案
+                    </Link>{" "}
+                    或直接管理分店。
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h3 className="mt-2 text-xl font-semibold text-slate-900">
+                    尚未登入
+                  </h3>
+                  <p className="mt-2 text-sm text-slate-500">
+                    立即
+                    <Link
+                      href="/login"
+                      className="font-semibold text-slate-900 underline-offset-2 hover:underline"
+                    >
+                      登入
+                    </Link>{" "}
+                    或{" "}
+                    <Link
+                      href="/register"
+                      className="font-semibold text-slate-900 underline-offset-2 hover:underline"
+                    >
+                      註冊帳號
+                    </Link>
+                    ，掌握即時資訊。
+                  </p>
+                </>
+              )}
+            </section>
             <SupportRequestBoard branches={branches} requests={requests} />
           </div>
         </div>

@@ -213,3 +213,43 @@ export async function resolveRequestAction(
   revalidatePath("/management");
   return { status: "success", message: "需求狀態已更新" };
 }
+
+export async function updateProfileAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) {
+    return missingEnvState;
+  }
+
+  const username = formData.get("username")?.toString().trim() ?? "";
+  if (!username) {
+    return { status: "error", message: "請輸入使用者名稱" };
+  }
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { status: "error", message: "請先登入" };
+  }
+
+  const { error } = await supabase.auth.updateUser({
+    data: {
+      username,
+    },
+  });
+
+  if (error) {
+    return { status: "error", message: error.message };
+  }
+
+  revalidatePath("/profile");
+  revalidatePath("/");
+  revalidatePath("/management");
+
+  return { status: "success", message: "使用者名稱已更新" };
+}
