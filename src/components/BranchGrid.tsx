@@ -24,9 +24,10 @@ const statusMap: Record<
 
 interface BranchGridProps {
   branches: Branch[];
+  showDetails?: boolean;
 }
 
-export function BranchGrid({ branches }: BranchGridProps) {
+export function BranchGrid({ branches, showDetails = true }: BranchGridProps) {
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between">
@@ -90,23 +91,29 @@ export function BranchGrid({ branches }: BranchGridProps) {
                     />
                   </div>
                 </div>
-                {branch.notes && (
+                {showDetails && branch.notes && (
                   <p className="mt-3 text-sm text-slate-600">{branch.notes}</p>
                 )}
-                <div className="mt-4 flex items-center justify-between text-sm">
-                  <div className="text-slate-500">
-                    聯絡人：
-                    <span className="font-medium text-slate-800">
-                      {branch.lead_contact ?? "未設定"}
-                    </span>
+                {showDetails ? (
+                  <div className="mt-4 flex items-center justify-between text-sm">
+                    <div className="text-slate-500">
+                      聯絡人：
+                      <span className="font-medium text-slate-800">
+                        {branch.lead_contact ?? "未設定"}
+                      </span>
+                    </div>
+                    <a
+                      href="#support-request"
+                      className="text-indigo-600 underline-offset-4 hover:underline"
+                    >
+                      我要支援
+                    </a>
                   </div>
-                  <a
-                    href="#support-request"
-                    className="text-indigo-600 underline-offset-4 hover:underline"
-                  >
-                    我要支援
-                  </a>
-                </div>
+                ) : (
+                  <p className="mt-4 text-xs text-slate-500">
+                    詳細備註與聯絡資訊僅限管理員於後台檢視。
+                  </p>
+                )}
               </article>
             );
           })}
