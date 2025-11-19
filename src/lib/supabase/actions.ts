@@ -18,7 +18,7 @@ export async function signUpAction(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   if (!supabase) {
     return missingEnvState;
   }
@@ -52,7 +52,7 @@ export async function signInAction(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   if (!supabase) {
     return missingEnvState;
   }
@@ -74,7 +74,7 @@ export async function signInAction(
 }
 
 export async function signOutAction() {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   if (!supabase) {
     return;
   }
@@ -86,7 +86,7 @@ export async function createBranchAction(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   if (!supabase) {
     return missingEnvState;
   }
@@ -117,7 +117,7 @@ export async function updateBranchStaffingAction(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   if (!supabase) {
     return missingEnvState;
   }
@@ -153,7 +153,7 @@ export async function createSupportRequestAction(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   if (!supabase) {
     return missingEnvState;
   }
@@ -188,7 +188,7 @@ export async function resolveRequestAction(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   if (!supabase) {
     return missingEnvState;
   }

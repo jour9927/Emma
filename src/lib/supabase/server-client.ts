@@ -13,9 +13,9 @@ function getEnv() {
   return { url, anonKey };
 }
 
-export function createSupabaseServerClient():
-  | SupabaseClient
-  | null {
+export async function createSupabaseServerClient(): Promise<
+  SupabaseClient | null
+> {
   const env = getEnv();
   if (!env) return null;
 

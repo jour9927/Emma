@@ -8,7 +8,7 @@ import {
 import { demoBranches, demoRequests, demoSnapshot } from "./demo-data";
 
 export async function loadBranches(): Promise<Branch[]> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   if (!supabase) {
     return demoBranches;
   }
@@ -27,7 +27,7 @@ export async function loadBranches(): Promise<Branch[]> {
 }
 
 export async function loadRequests(): Promise<CoverageRequest[]> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   if (!supabase) {
     return demoRequests;
   }
