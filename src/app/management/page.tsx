@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Link from "next/link";
 import { AdminSnapshot } from "@/components/AdminSnapshot";
 import { loadBranches, loadRequests, buildSnapshot } from "@/lib/data";
 import { AdminBranchManager } from "@/components/AdminBranchManager";
