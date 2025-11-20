@@ -111,6 +111,9 @@ export async function createBranchAction(
   formData: FormData,
 ): Promise<FormState> {
   const supabase = await createSupabaseServerClient();
+  if (!supabase) {
+    return missingEnvState;
+  }
   const adminCheck = await requireAdmin(supabase);
   if ("status" in adminCheck) {
     return adminCheck;
@@ -143,6 +146,9 @@ export async function updateBranchStaffingAction(
   formData: FormData,
 ): Promise<FormState> {
   const supabase = await createSupabaseServerClient();
+  if (!supabase) {
+    return missingEnvState;
+  }
   const adminCheck = await requireAdmin(supabase);
   if ("status" in adminCheck) {
     return adminCheck;
@@ -215,6 +221,9 @@ export async function resolveRequestAction(
   formData: FormData,
 ): Promise<FormState> {
   const supabase = await createSupabaseServerClient();
+  if (!supabase) {
+    return missingEnvState;
+  }
   const adminCheck = await requireAdmin(supabase);
   if ("status" in adminCheck) {
     return adminCheck;
