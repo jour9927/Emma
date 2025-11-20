@@ -3,8 +3,10 @@ import { AdminSnapshot } from "@/components/AdminSnapshot";
 import { loadBranches, loadRequests, buildSnapshot } from "@/lib/data";
 import { AdminBranchManager } from "@/components/AdminBranchManager";
 import { AdminRequestBoard } from "@/components/AdminRequestBoard";
+import AutoSimulationControl from "@/components/AutoSimulationControl";
 import { loadCurrentUser, isAdmin } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { getAutoSimulationStatus } from "@/lib/supabase/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -47,9 +49,10 @@ export default async function ManagementPage() {
     );
   }
 
-  const [branches, requests] = await Promise.all([
+  const [branches, requests, autoSimEnabled] = await Promise.all([
     loadBranches(),
     loadRequests(),
+    getAutoSimulationStatus(),
   ]);
   const snapshot = buildSnapshot(branches, requests);
 
@@ -77,6 +80,7 @@ export default async function ManagementPage() {
         </header>
 
         <AdminSnapshot snapshot={snapshot} />
+        <AutoSimulationControl initialEnabled={autoSimEnabled} />
         <AdminBranchManager branches={branches} requests={requests} />
         <AdminRequestBoard branches={branches} requests={requests} />
       </div>

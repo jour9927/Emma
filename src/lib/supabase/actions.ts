@@ -289,3 +289,80 @@ export async function updateProfileAction(
 
   return { status: "success", message: "使用者名稱已更新" };
 }
+
+// ==========================================
+// 自動化模擬系統控制
+// ==========================================
+
+export async function toggleAutoSimulation(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) {
+    return missingEnvState;
+  }
+
+  const adminCheck = await requireAdmin(supabase);
+  if ("status" in adminCheck) {
+    return adminCheck;
+  }
+
+  const enabled = formData.get("enabled")?.toString() === "true";
+
+  const { error } = await supabase
+    .from("system_settings")
+    .update({ value: enabled })
+    .eq("key", "auto_simulation_enabled");
+
+  if (error) {
+    return { status: "error", message: error.message };
+  }
+
+  revalidatePath("/admin");
+  return {
+    status: "success",
+    message: `自動模擬已${enabled ? "啟用" : "停用"}`,
+  };
+}
+
+export async function getAutoSimulationStatus(): Promise<boolean> {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) {
+    return false;
+  }
+
+  const { data } = await supabase
+    .from("system_settings")
+    .select("value")
+    .eq("key", "auto_simulation_enabled")
+    .single();
+
+  return data?.value === true;
+}
+
+export async function manualSimulateBranches(
+  _prev: FormState,
+): Promise<FormState> {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) {
+    return missingEnvState;
+  }
+
+  const adminCheck = await requireAdmin(supabase);
+  if ("status" in adminCheck) {
+    return adminCheck;
+  }
+
+  const { error } = await supabase.rpc("simulate_branch_headcount");
+
+  if (error) {
+    return { status: "error", message: error.message };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/admin");
+  revalidatePath("/management");
+
+  return { status: "success", message: "已手動更新所有分店人力數據" };
+}

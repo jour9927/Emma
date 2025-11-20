@@ -13,6 +13,50 @@ export async function loadBranches(): Promise<Branch[]> {
     return demoBranches;
   }
 
+  // 獲取當前用戶
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // 如果用戶未登入，返回所有分店
+  if (!user) {
+    const { data, error } = await supabase
+      .from("branches")
+      .select(
+        "id,name,location,required_headcount,current_headcount,lead_contact,notes,updated_at",
+      )
+      .order("name");
+
+    if (error || !data) {
+      return demoBranches;
+    }
+    return data as Branch[];
+  }
+
+  // 檢查用戶是否有特定分店權限設定
+  const { data: accessData } = await supabase
+    .from("user_branch_access")
+    .select("branch_id")
+    .eq("user_email", user.email);
+
+  // 如果用戶有特定權限設定，只返回有權限的分店
+  if (accessData && accessData.length > 0) {
+    const branchIds = accessData.map((a) => a.branch_id);
+    const { data, error } = await supabase
+      .from("branches")
+      .select(
+        "id,name,location,required_headcount,current_headcount,lead_contact,notes,updated_at",
+      )
+      .in("id", branchIds)
+      .order("name");
+
+    if (error || !data) {
+      return demoBranches;
+    }
+    return data as Branch[];
+  }
+
+  // 沒有特定權限設定的用戶可以看到所有分店
   const { data, error } = await supabase
     .from("branches")
     .select(
