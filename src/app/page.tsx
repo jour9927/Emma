@@ -22,11 +22,13 @@ export default async function Home() {
 
   const snapshot = buildSnapshot(branches, requests);
   const admin = isAdmin(user);
-  const greetingName =
-    user?.user_metadata?.username ??
-    user?.user_metadata?.full_name ??
-    user?.email ??
-    "夥伴";
+  const isAuthenticated = !!user;
+  const greetingName = isAuthenticated
+    ? user?.user_metadata?.username ??
+      user?.user_metadata?.full_name ??
+      user?.email ??
+      "夥伴"
+    : null;
 
   const now = new Date();
   const arrivalDeadline = new Date(now.getTime() + 60 * 60 * 1000);
@@ -74,13 +76,15 @@ export default async function Home() {
             員工分流系統
           </p>
           <h1 className="mt-2 text-3xl font-semibold text-slate-900">
-            您好，{greetingName}
+            {isAuthenticated ? `您好，${greetingName}` : "歡迎使用員工分流系統"}
           </h1>
           <p className="mt-2 text-sm text-slate-500">
             現在時間 {now.toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}，
-            平台會依照最新人力狀況建議支援任務。
+            {isAuthenticated
+              ? "平台會依照最新人力狀況建議支援任務。"
+              : "請先登入以接收專屬任務與分店資訊。"}
           </p>
-          {recommendedBranch && (
+          {isAuthenticated && recommendedBranch && (
             <div className="mt-6 rounded-3xl border border-indigo-100 bg-indigo-50/70 p-5 text-slate-900">
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-indigo-500">
                 最優先支援任務
@@ -185,7 +189,35 @@ export default async function Home() {
         </section>
 
         <div className="grid gap-8 lg:grid-cols-[3fr,2fr]">
-          <BranchGrid branches={branches} showDetails={admin} />
+          {isAuthenticated ? (
+            <BranchGrid branches={branches} showDetails={admin} />
+          ) : (
+            <section className="rounded-3xl border border-slate-200 bg-white/90 p-6 text-slate-600 shadow-sm">
+              <p className="text-xs uppercase tracking-[0.4em] text-slate-500">
+                分店摘要
+              </p>
+              <h3 className="mt-2 text-xl font-semibold text-slate-900">
+                請登入以檢視詳細 Dashboard
+              </h3>
+              <p className="mt-3 text-sm">
+                未登入帳號僅能看到系統總覽，若要查看各分店的即時狀態與支援缺口，請先登入。
+              </p>
+              <div className="mt-4 flex flex-wrap gap-3 text-xs">
+                <Link
+                  href="/login"
+                  className="rounded-full border border-slate-200 px-4 py-2 font-semibold text-slate-900 hover:border-slate-300"
+                >
+                  立即登入
+                </Link>
+                <Link
+                  href="/register"
+                  className="rounded-full border border-slate-200 px-4 py-2 font-semibold text-slate-900 hover:border-slate-300"
+                >
+                  建立帳號
+                </Link>
+              </div>
+            </section>
+          )}
           <div className="space-y-6">
             <section className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
               <p className="text-xs uppercase tracking-[0.4em] text-slate-500">
@@ -250,7 +282,7 @@ export default async function Home() {
             </section>
             {admin ? (
               <SupportRequestBoard branches={branches} requests={requests} />
-            ) : (
+            ) : user ? (
               <section className="rounded-3xl border border-dashed border-slate-200 bg-white/70 p-6 text-sm text-slate-600">
                 <h3 className="text-lg font-semibold text-slate-900">
                   管理員指派流程
@@ -262,6 +294,15 @@ export default async function Home() {
                 </ol>
                 <p className="mt-3 text-xs text-slate-500">
                   想了解更多狀態，可向分店主管或管理員詢問；細節僅於後台開放。
+                </p>
+              </section>
+            ) : (
+              <section className="rounded-3xl border border-dashed border-slate-200 bg-white/70 p-6 text-sm text-slate-600">
+                <h3 className="text-lg font-semibold text-slate-900">
+                  登入後即可查看指派流程
+                </h3>
+                <p className="mt-3">
+                  管理員會依分店需求指派到場支援，請先登入以接收通知。
                 </p>
               </section>
             )}
