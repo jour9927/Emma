@@ -40,7 +40,7 @@ export function AdminSnapshot({ snapshot }: AdminSnapshotProps) {
           </h2>
         </div>
         <p className="text-xs text-slate-500">
-          最後更新 {new Date().toLocaleTimeString()}
+          最後更新 {new Date().toLocaleTimeString("zh-TW", { timeZone: "Asia/Taipei" })}
         </p>
       </div>
       <div className="mt-6 grid gap-4 md:grid-cols-4">

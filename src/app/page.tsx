@@ -79,7 +79,7 @@ export default async function Home() {
             {isAuthenticated ? `您好，${greetingName}` : "歡迎使用員工分流系統"}
           </h1>
           <p className="mt-2 text-sm text-slate-500">
-            現在時間 {now.toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}，
+            現在時間 {now.toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Taipei" })}，
             {isAuthenticated
               ? "平台會依照最新人力狀況建議支援任務。"
               : "請先登入以接收專屬任務與分店資訊。"}
@@ -94,6 +94,7 @@ export default async function Home() {
                 {arrivalDeadline.toLocaleTimeString("zh-TW", {
                   hour: "2-digit",
                   minute: "2-digit",
+                  timeZone: "Asia/Taipei",
                 })}
                 前往 {recommendedBranch.name}
               </h3>

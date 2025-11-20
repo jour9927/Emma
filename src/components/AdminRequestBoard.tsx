@@ -44,7 +44,7 @@ export function AdminRequestBoard({
                   </h3>
                 </div>
                 <div className="text-right text-sm text-slate-500">
-                  <p>{new Date(request.created_at).toLocaleString()}</p>
+                  <p>{new Date(request.created_at).toLocaleString("zh-TW", { timeZone: "Asia/Taipei" })}</p>
                   <p>{statusLabel[request.status]}</p>
                 </div>
               </div>
