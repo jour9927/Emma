@@ -46,21 +46,40 @@ export default async function Home() {
         b.current_headcount / b.required_headcount,
     )[0];
 
-  const recommendedBranch = urgentRequest
-    ? branches.find((branch) => branch.id === urgentRequest.branch_id)
-    : fallbackBranch;
+  // 找到用戶可訪問的分店中最需要支援的
+  const userAccessibleBranches = branches;
+  const urgentRequestInAccessibleBranches = openRequests
+    .filter((req) => 
+      userAccessibleBranches.some((b) => b.id === req.branch_id)
+    )
+    .slice()
+    .sort(
+      (a, b) => priorityWeight[a.priority] - priorityWeight[b.priority],
+    )[0];
 
-  const recommendedReason = urgentRequest
-    ? `${urgentRequest.requested_by} 回報 ${
-        urgentRequest.priority === "high"
-          ? "高優先"
-          : urgentRequest.priority === "medium"
-            ? "中優先"
-            : "一般"
+  const fallbackBranchInAccessible = userAccessibleBranches
+    .slice()
+    .sort(
+      (a, b) =>
+        a.current_headcount / a.required_headcount -
+        b.current_headcount / b.required_headcount,
+    )[0];
+
+  const recommendedBranch = urgentRequestInAccessibleBranches
+    ? branches.find((branch) => branch.id === urgentRequestInAccessibleBranches.branch_id)
+    : fallbackBranchInAccessible;
+
+  const recommendedReason = urgentRequestInAccessibleBranches
+    ? `${urgentRequestInAccessibleBranches.requested_by} 回報 ${
+        urgentRequestInAccessibleBranches.priority === "high"
+          ? "🔴 高優先"
+          : urgentRequestInAccessibleBranches.priority === "medium"
+            ? "🟡 中優先"
+            : "🟢 一般"
       } 缺人需求`
-    : fallbackBranch
-      ? "該分店人力低於 70%，需要優先支援。"
-      : "目前所有分店人力均衡。";
+    : fallbackBranchInAccessible
+      ? `人力比例 ${Math.round((fallbackBranchInAccessible.current_headcount / fallbackBranchInAccessible.required_headcount) * 100)}%，建議優先支援`
+      : "目前所有分店人力充足，暫無支援需求。";
 
   const generalStats = [
     { label: "分店總數", value: snapshot.totalBranches },
@@ -87,33 +106,80 @@ export default async function Home() {
           {isAuthenticated && recommendedBranch && (
             <div className="mt-6 rounded-3xl border border-indigo-100 bg-indigo-50/70 p-5 text-slate-900">
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-indigo-500">
-                最優先支援任務
+                {admin ? "系統推薦支援任務" : "📍 您的派遣任務"}
               </p>
               <h3 className="mt-2 text-2xl font-semibold">
-                請於{" "}
-                {arrivalDeadline.toLocaleTimeString("zh-TW", {
+                {admin ? "建議優先處理：" : "建議於 "}
+                {!admin && arrivalDeadline.toLocaleTimeString("zh-TW", {
                   hour: "2-digit",
                   minute: "2-digit",
                   timeZone: "Asia/Taipei",
                 })}
-                前往 {recommendedBranch.name}
+                {!admin && " 前往 "}
+                {recommendedBranch.name}
               </h3>
               <p className="mt-2 text-sm text-slate-600">{recommendedReason}</p>
-              <p className="mt-2 text-sm text-slate-500">
-                位置：{recommendedBranch.location}
-              </p>
+              <div className="mt-3 space-y-1 text-sm">
+                <p className="flex items-center text-slate-700">
+                  <span className="mr-2">📍</span>
+                  <span className="font-medium">位置：</span>
+                  <span className="ml-1">{recommendedBranch.location}</span>
+                </p>
+                <p className="flex items-center text-slate-700">
+                  <span className="mr-2">👥</span>
+                  <span className="font-medium">人力狀況：</span>
+                  <span className="ml-1">
+                    {recommendedBranch.current_headcount}/{recommendedBranch.required_headcount} 人
+                    <span className={`ml-2 rounded-full px-2 py-0.5 text-xs ${
+                      (recommendedBranch.current_headcount / recommendedBranch.required_headcount) >= 0.9
+                        ? "bg-green-100 text-green-700"
+                        : (recommendedBranch.current_headcount / recommendedBranch.required_headcount) >= 0.7
+                          ? "bg-yellow-100 text-yellow-700"
+                          : "bg-red-100 text-red-700"
+                    }`}>
+                      {(recommendedBranch.current_headcount / recommendedBranch.required_headcount) >= 0.9
+                        ? "正常"
+                        : (recommendedBranch.current_headcount / recommendedBranch.required_headcount) >= 0.7
+                          ? "需要支援"
+                          : "急需支援"}
+                    </span>
+                  </span>
+                </p>
+                {recommendedBranch.lead_contact && (
+                  <p className="flex items-center text-slate-700">
+                    <span className="mr-2">📞</span>
+                    <span className="font-medium">聯絡人：</span>
+                    <span className="ml-1">{recommendedBranch.lead_contact}</span>
+                  </p>
+                )}
+              </div>
               {admin ? (
                 <Link
                   href="/management"
                   className="mt-4 inline-flex items-center rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-800"
                 >
-                  前往管理頁指派人員
+                  前往管理頁指派人員 →
                 </Link>
               ) : (
-                <p className="mt-4 text-xs text-slate-500">
-                  若已在路上，請於抵達後至管理員群組回報；如需調整，等待管理員從後台重新指派。
-                </p>
+                <div className="mt-4 rounded-lg border border-indigo-200 bg-indigo-100/50 p-3">
+                  <p className="text-xs text-indigo-800">
+                    💡 <strong>下一步：</strong>請盡快前往指定分店，抵達後向店長或主管報到。如有問題請聯絡上方聯絡人或等待管理員進一步指示。
+                  </p>
+                </div>
               )}
+            </div>
+          )}
+          {isAuthenticated && !recommendedBranch && (
+            <div className="mt-6 rounded-3xl border border-green-100 bg-green-50/70 p-5 text-slate-900">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-green-600">
+                ✅ 目前狀態良好
+              </p>
+              <h3 className="mt-2 text-xl font-semibold">
+                所有分店人力充足，暫無支援需求
+              </h3>
+              <p className="mt-2 text-sm text-slate-600">
+                請保持待命狀態，如有緊急需求，管理員會另外通知。
+              </p>
             </div>
           )}
         </section>
@@ -281,22 +347,47 @@ export default async function Home() {
                 </>
               )}
             </section>
-            {admin ? (
-              <SupportRequestBoard branches={branches} requests={requests} />
-            ) : user ? (
-              <section className="rounded-3xl border border-dashed border-slate-200 bg-white/70 p-6 text-sm text-slate-600">
-                <h3 className="text-lg font-semibold text-slate-900">
-                  管理員指派流程
-                </h3>
-                <ol className="mt-3 list-inside list-decimal space-y-2">
-                  <li>管理員會依分店需求從後台選擇人員。</li>
-                  <li>收到通知後，請於指定時間內到場並回報。</li>
-                  <li>若無法前往，立即回報負責人，由管理員重新指派。</li>
-                </ol>
-                <p className="mt-3 text-xs text-slate-500">
-                  想了解更多狀態，可向分店主管或管理員詢問；細節僅於後台開放。
-                </p>
-              </section>
+            {user ? (
+              <>
+                {/* 一般用戶和管理員都顯示支援需求 */}
+                <SupportRequestBoard branches={branches} requests={requests} />
+                
+                {/* 一般用戶顯示可支援的分店列表 */}
+                {!admin && branches.length > 0 && (
+                  <section className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
+                    <div className="mb-4">
+                      <p className="text-xs uppercase tracking-[0.4em] text-slate-500">
+                        我的支援區域
+                      </p>
+                      <h3 className="mt-2 text-xl font-semibold text-slate-900">
+                        可派遣分店列表
+                      </h3>
+                      <p className="mt-1 text-sm text-slate-600">
+                        以下是您被授權支援的分店，請留意人力狀況和支援需求
+                      </p>
+                    </div>
+                    <BranchGrid branches={branches} />
+                  </section>
+                )}
+
+                {/* 指派流程說明 */}
+                {!admin && (
+                  <section className="rounded-3xl border border-dashed border-slate-200 bg-white/70 p-6 text-sm text-slate-600">
+                    <h3 className="text-lg font-semibold text-slate-900">
+                      📋 支援流程說明
+                    </h3>
+                    <ol className="mt-3 list-inside list-decimal space-y-2">
+                      <li>管理員會依分店需求通知您前往支援</li>
+                      <li>收到通知後，請於指定時間內到場並回報</li>
+                      <li>若無法前往，立即回報負責人，由管理員重新指派</li>
+                      <li>上方的「最優先支援任務」會顯示系統推薦的分店</li>
+                    </ol>
+                    <p className="mt-3 text-xs text-slate-500">
+                      💡 提示：紅色警戒的分店表示人力嚴重不足，需要優先支援
+                    </p>
+                  </section>
+                )}
+              </>
             ) : (
               <section className="rounded-3xl border border-dashed border-slate-200 bg-white/70 p-6 text-sm text-slate-600">
                 <h3 className="text-lg font-semibold text-slate-900">
